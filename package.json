@@ -5,6 +5,7 @@
     "dotenv": "^15.0.0"
   },
   "scripts": {
-    "commands": "node deployCommands.js"
+    "commands": "node deployCommands.js",
+    "all-commands": "node deployCommands.js all"
   }
 }
