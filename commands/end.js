@@ -11,7 +11,7 @@ module.exports = {
      * @param { CommandInteraction } interaction 
      */
     async execute(interaction) {
-        const { channel } = interaction;
+        const { channel, client } = interaction;
 
 
         // fetch the mesages in the current channel
@@ -27,9 +27,9 @@ module.exports = {
 
         for (const [snowflake, message] of messages) {
             const { content, author } = message;
+            if (author.id == client.user.id) break;
             if (author.bot) continue;
             if (content.includes('---')) break;
-            if (author.id == process.env.CLIENT_ID) break;
 
             // test if the message is a valid contribution
             if (/^,? *[\p{L}\d]+ *,?$/iu.test(content)) {
@@ -49,6 +49,10 @@ module.exports = {
 
         // add a space between each word, except for if the next one starts with a ', ', to avoid things like "foo , bar"
         sentence = sentence.map((val, index, array) => (array[index + 1]?.startsWith(', ') ? val.trim() : val.trim() + ' '));
+
+        if (sentence.length == 0) {
+            return interaction.reply({content: 'Kein Satz gefunden ☹', ephemeral: true});
+        }
 
         // construct the sentence
         // [the sentence]. -[contributing users]
