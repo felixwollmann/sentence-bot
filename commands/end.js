@@ -1,17 +1,25 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, SlashCommandBooleanOption } = require('@discordjs/builders');
 const { CommandInteraction } = require('discord.js');
 
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('end')
-        .setDescription('Ends a sentence'),
+        .setDescription('Ends a sentence')
+        .addBooleanOption(
+            new SlashCommandBooleanOption()
+                .setName('ephemeral')
+                .setRequired(false)
+                .setDescription('The message will only be visible to the you')
+        ),
     /**
      * 
      * @param { CommandInteraction } interaction 
      */
     async execute(interaction) {
         const { channel, client } = interaction;
+
+        const ephemeral = interaction.options.getBoolean('ephemeral') || false;
 
 
         // fetch the mesages in the current channel
@@ -34,7 +42,7 @@ module.exports = {
             // test if the message is a valid contribution
             if (/^,? *[\p{L}\d]+ *,?$/iu.test(content)) {
                 sentence.unshift(message.content.split(/ +/).join(' ').trim());
-            // test if the message concludes a sentence (".", but not as the last message)
+                // test if the message concludes a sentence (".", but not as the last message)
             } else if (content.includes('.') && sentence.length > 0) {
                 break;
             } else {
@@ -51,16 +59,21 @@ module.exports = {
         sentence = sentence.map((val, index, array) => (array[index + 1]?.startsWith(', ') ? val.trim() : val.trim() + ' '));
 
         if (sentence.length == 0) {
-            return interaction.reply({content: 'Kein Satz gefunden ☹', ephemeral: true});
+            return interaction.reply({ content: 'Kein Satz gefunden ☹', ephemeral: true });
         }
 
         // construct the sentence
         // [the sentence]. -[contributing users]
         const output = `${sentence.join('').trim()}. -${[...users].map(u => u.username).join(', ')}`;
 
-        interaction.reply(output);
+        interaction.reply(
+            {
+                ephemeral,
+                content: output,
+            }
+        );
 
         // I didn't want to add a database so I'm just printing the output to the console
-        console.log(output);
+        console.log(output + (ephemeral ? ` (ephemeral, by ${interaction.user.username})` : ''));
     },
 };
