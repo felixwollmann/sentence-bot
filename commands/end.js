@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, SlashCommandBooleanOption } = require('@discordjs/builders');
-const { CommandInteraction } = require('discord.js');
+const { CommandInteraction, InteractionCollector } = require('discord.js');
 
 
 module.exports = {
@@ -19,6 +19,10 @@ module.exports = {
     async execute(interaction) {
         const { channel, client } = interaction;
 
+        if (!interaction.inGuild()) {
+            return interaction.reply('Dieser Command kann nicht in DMs verwendet werden ☹');
+        }
+
         const ephemeral = interaction.options.getBoolean('ephemeral') || false;
 
 
@@ -27,14 +31,14 @@ module.exports = {
             limit: 100, // Amount of messages to be fetched in the channel
         });
 
-        /** Set of all users, who contributed something */
-        const users = new Set();
+        /** Set of all members, who contributed something */
+        const members = new Set();
 
         /** Array of contributions to the sentence */
         let sentence = [];
 
         for (const [snowflake, message] of messages) {
-            const { content, author } = message;
+            const { content, author, member } = message;
             if (author.id == client.user.id) break;
             if (author.bot) continue;
             if (content.includes('---')) break;
@@ -49,8 +53,8 @@ module.exports = {
                 // continue with the loop, if none of the above conditions are met
                 continue;
             }
-            // add the user to users
-            users.add(author);
+            // add the user to members
+            members.add(member);
 
         }
 
@@ -64,7 +68,7 @@ module.exports = {
 
         // construct the sentence
         // [the sentence]. -[contributing users]
-        const output = `${sentence.join('').trim()}. -${[...users].map(u => u.username).join(', ')}`;
+        const output = `${sentence.join('').trim()}. -${[...members].map(m => m.nickname).join(', ')}`;
 
         interaction.reply(
             {
