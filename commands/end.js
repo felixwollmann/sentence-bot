@@ -40,7 +40,7 @@ module.exports = {
             if (content.includes('---')) break;
 
             // test if the message is a valid contribution
-            if (/^,? *[\p{L}\d]+ *,?$/iu.test(content)) {
+            if (/^,? *[\p{L}\d'"<>+^°-]+ *,?$/iu.test(content)) {
                 sentence.unshift(message.content.split(/ +/).join(' ').trim());
                 // test if the message concludes a sentence (".", but not as the last message)
             } else if (content.includes('.') && sentence.length > 0) {
