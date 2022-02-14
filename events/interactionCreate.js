@@ -1,5 +1,13 @@
+const { CommandInteraction, InteractionCollector } = require('discord.js');
+
+
 module.exports = {
     name: 'interactionCreate',
+
+    /**
+     * @param { CommandInteraction } interaction 
+     */
+
     async execute(interaction) {
         if (!interaction.isCommand()) return;
 
@@ -13,7 +21,7 @@ module.exports = {
             await command.execute(interaction);
         } catch (error) {
             console.error(error);
-            return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            return interaction[interaction.deferred ? 'editReply' : 'reply']({ content: 'There was an error while executing this command!', ephemeral: true });
         }
     },
 };

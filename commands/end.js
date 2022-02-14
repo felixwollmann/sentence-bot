@@ -24,7 +24,7 @@ module.exports = {
         }
 
         const ephemeral = interaction.options.getBoolean('ephemeral') || false;
-
+        await interaction.deferReply({ephemeral});
 
         // fetch the mesages in the current channel
         const messages = await channel.messages.fetch({
@@ -39,7 +39,7 @@ module.exports = {
 
         for (const [snowflake, message] of messages) {
             const { content, author, member } = message;
-            if (author.id == client.user.id) break;
+            if (author.id == client.user.id && sentence.length > 0) break;
             if (author.bot) continue;
             if (content.includes('---')) break;
 
@@ -54,7 +54,7 @@ module.exports = {
                 continue;
             }
             // add the user to members
-            members.add(member);
+            members.add(member ?? await message.guild.members.fetch(author.id).catch(() => console.error(`Could not fetch member ${author.id}, in Channel ${message.channel.id}`)));
 
         }
 
@@ -63,14 +63,14 @@ module.exports = {
         sentence = sentence.map((val, index, array) => (array[index + 1]?.startsWith(', ') ? val.trim() : val.trim() + ' '));
 
         if (sentence.length == 0) {
-            return interaction.reply({ content: 'Kein Satz gefunden ☹', ephemeral: true });
+            return interaction.editReply({ content: 'Kein Satz gefunden ☹', ephemeral: true });
         }
 
         // construct the sentence
         // [the sentence]. -[contributing users]
-        const output = `${sentence.join('').trim()}. -${[...members].map(m => m.nickname).join(', ')}`;
+        const output = `${sentence.join('').trim()}. -${[...members].filter((val) => !!val).map(m => m.nickname).join(', ')}`;
 
-        interaction.reply(
+        interaction.editReply(
             {
                 ephemeral,
                 content: output,
