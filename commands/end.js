@@ -24,7 +24,7 @@ module.exports = {
         }
 
         const ephemeral = interaction.options.getBoolean('ephemeral') || false;
-        await interaction.deferReply({ephemeral});
+        await interaction.deferReply({ ephemeral, });
 
         // fetch the mesages in the current channel
         const messages = await channel.messages.fetch({
@@ -38,17 +38,27 @@ module.exports = {
         let sentence = [];
 
         for (const [snowflake, message] of messages) {
-            const { content, author, member } = message;
+            let { content, author, member } = message;
             if (author.id == client.user.id && sentence.length > 0) break;
             if (author.bot) continue;
             if (content.includes('---')) break;
 
-            // test if the message is a valid contribution
+            content = content.replace(/ \/\/.+$/, '');
+
             if (/^,? *[\p{L}\d'"<>+^°-]+ *,?$/iu.test(content)) {
-                sentence.unshift(message.content.split(/ +/).join(' ').trim());
+                // test if the message is a valid contribution
+                sentence.unshift(content.split(/ +/).join(' ').trim());
+
+            } else if (/^,? *[\p{L}\d'"<>+^°-]+\.$/iu.test(content) && sentence.length <= 0) {
+                sentence.unshift(content.replace('.', '').split(/ +/).join(' ').trim());
+
+            } else if (content.trim().endsWith('.') && sentence.length > 0) {
                 // test if the message concludes a sentence (".", but not as the last message)
-            } else if (content.includes('.') && sentence.length > 0) {
                 break;
+
+            } else if (content.trim() == '.' && sentence.length <= 0) {
+                // still add the member to members if they ended the sentence
+
             } else {
                 // continue with the loop, if none of the above conditions are met
                 continue;
