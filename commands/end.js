@@ -45,7 +45,7 @@ module.exports = {
 
             content = content.replace(/ \/\/.+$/, '');
 
-            if (/^,? *[\p{L}\d'"<>+^°-]+ *,?$/iu.test(content)) {
+            if (/^(\|\|)?,? *(\|\|)?[\p{L}\d'"<>+^°-]+(\|\|)? *,?(\|\|)?$/iu.test(content)) {
                 // test if the message is a valid contribution
                 sentence.unshift(content.split(/ +/).join(' ').trim());
 
