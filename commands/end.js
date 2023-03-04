@@ -41,15 +41,15 @@ module.exports = {
             let { content, author, member } = message;
             if (author.id == client.user.id && sentence.length > 0) break;
             if (author.bot) continue;
-            if (content.includes('---')) break;
+            if (content.trim() === '---') break;
 
             content = content.replace(/ \/\/.+$/, '');
 
-            if (/^,? *[\p{L}\d'"<>+^°|\.,-]+ *,?$/iu.test(content) && content[content.length - 1] != '') {
+            if (/^,? *[\p{L}\d'"<>+^°|\.,$€@#*-]+ *,?$/iu.test(content) && content[content.length - 1] != '.') {
                 // test if the message is a valid contribution
                 sentence.unshift(content.split(/ +/).join(' ').trim());
 
-            } else if (/^,? *[\p{L}\d'"<>+^°\.,-]+\.$/iu.test(content) && sentence.length <= 0) {
+            } else if (/^,? *[\p{L}\d'"<>+^°|\,$€@#*-]+\.$/iu.test(content) && sentence.length == 0) {
                 sentence.unshift(content.replace('.', '').split(/ +/).join(' ').trim());
 
             } else if (content.trim().endsWith('.') && sentence.length > 0) {
@@ -78,7 +78,7 @@ module.exports = {
 
         // construct the sentence
         // [the sentence]. -[contributing users]
-        const output = `${sentence.join('').trim()}. -${[...members].filter((val) => !!val).map(m => m.nickname || m.user.username).join(', ')}`;
+        const output = `${sentence.join('').trim()}. –${[...members].filter((val) => !!val).map(m => m.nickname || m.user.username).join(', ')}`;
 
         interaction.editReply(
             {
