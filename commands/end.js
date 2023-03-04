@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, SlashCommandBooleanOption } = require('@discordjs/builders');
+const { SlashCommandBuilder, SlashCommandBooleanOption, SlashCommandStringOption } = require('@discordjs/builders');
 const { CommandInteraction, InteractionCollector } = require('discord.js');
 
 
@@ -11,7 +11,20 @@ module.exports = {
                 .setName('ephemeral')
                 .setRequired(false)
                 .setDescription('The message will only be visible to the you')
-        ),
+        )
+        .addStringOption(
+            new SlashCommandStringOption()
+                .setRequired(false)
+                .setName('option')
+                .setAutocomplete(false)
+                .setDescription('Add options here') // intentionally vague as this is supposed to be an april fools joke
+        )
+        ,
+    // Explanation: The april fools joke
+    // The idea here is the following: A person, who knows this insight, can manipulate the output of the bot to hopefully make it more fun.
+    // It is hidden behind the nondescript option "option". When it is set, it just completely skips any processing of messages and echoes the parameter.
+    // With the ephemeral-option, one could copy that message, (slightly) adjust it and then let the bot echo it.
+
     /**
      * 
      * @param { CommandInteraction } interaction 
@@ -24,6 +37,15 @@ module.exports = {
         }
 
         const ephemeral = interaction.options.getBoolean('ephemeral') || false;
+        const secretOption = interaction.options.getString('option') || false; // april fools addition
+        if (secretOption) {
+            interaction.reply({
+                ephemeral,
+                content: secretOption,
+            });
+            console.log(`SECRET APRIL FOOLS OPTION: echoed the following "${secretOption} (${ephemeral ? `ephemeral, by ` : ''}${interaction.user.username})`);
+            return;
+        }
         await interaction.deferReply({ ephemeral, });
 
         // fetch the mesages in the current channel
