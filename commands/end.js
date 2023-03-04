@@ -49,7 +49,7 @@ module.exports = {
                 // test if the message is a valid contribution
                 sentence.unshift(content.split(/ +/).join(' ').trim());
 
-            } else if (/^,? *[\p{L}\d'"<>+^°|\,$€@#*-]+\.$/iu.test(content) && sentence.length == 0) {
+            } else if (/^,? *[\p{L}\d'"<>+^°|\.,$€@#*-]+\.$/iu.test(content) && sentence.length == 0) {
                 sentence.unshift(content.replace('.', '').split(/ +/).join(' ').trim());
 
             } else if (content.trim().endsWith('.') && sentence.length > 0) {
